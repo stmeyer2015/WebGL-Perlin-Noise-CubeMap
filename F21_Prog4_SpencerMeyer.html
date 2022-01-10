@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<canvas id="gl-canvas" width="512" height="512"> </canvas>
+<div>
+<button id = "ButtonX">Rotate X</button>
+<button id = "ButtonY">Rotate Y</button>
+<button id = "ButtonZ">Rotate Z</button>
+<button id = "ButtonT">Toggle Rotation</button>
+Scale Y<input id="scaleY" type="range" min=".1" max="2.0" step=".1" value="1.5" />
+</div>
+
+<div>
+<button id = "toggleS">Toggle Simplex Noise</button>
+<button id = "toggleP">Toggle Perlin Noise</button>
+</div>
+
+<div>
+Simplex X Scale <input id="sx" type="range" min="10" max="100" step="10" value="10" />
+Perlin X Scale <input id="px" type="range" min="10" max="100" step="10" value="100" />
+</div>
+
+<div>
+Simplex Y Scale <input id="sy" type="range" min="10" max="100" step="10" value="10" />
+Perlin Y Scale <input id="py" type="range" min="10" max="100" step="10" value="100" />
+</div>
+
+<div>
+Simplex T Scale <input id="st" type="range" min="10" max="100" step="10" value="100" />
+Perlin T Scale <input id="pt" type="range" min="10" max="100" step="10" value="100" />
+</div>
+
+<div> 
+Mesh Count <input id="meshCount" type="range" min="10" max="1000" step="10" value="1000" />
+Image Resolution <input id="resolution" type="range" min="10" max="500" step="10" value="250" /> 
+</div>
+
+<script id="vertex-shader1" type="x-shader/x-vertex">
+#version 300 es
+
+in vec4 aPosition;
+in vec4 aNormal;
+out vec3 R;
+
+uniform mat4 uModelViewMatrix;
+uniform mat4 uProjectionMatrix;
+uniform mat3 uNormalMatrix;
+
+void main()
+{
+    gl_Position = uProjectionMatrix*uModelViewMatrix*aPosition;
+
+    vec3 eyePos  = (uModelViewMatrix*aPosition).xyz;
+
+    vec4 N = uProjectionMatrix*uModelViewMatrix*aNormal;
+
+    R = reflect(eyePos.xyz, N.xyz);
+
+}
+</script>
+<script id="vertex-shader2" type="x-shader/x-vertex">
+#version 300 es
+
+in  vec4 aPosition;
+in  vec4 aColor;
+out vec4 vColor;
+
+uniform mat4 uModelViewMatrix;
+uniform mat4 uProjectionMatrix;
+
+void main()
+{
+    gl_Position = uProjectionMatrix*uModelViewMatrix*aPosition;
+    vColor = aColor;
+}
+</script>
+
+
+<script id="fragment-shader1" type="x-shader/x-fragment">
+#version 300 es
+
+precision mediump float;
+
+in vec3 R;
+out vec4 fColor;
+
+uniform samplerCube uTexMap;
+
+void main()
+{
+    fColor = texture(uTexMap, R);
+}
+</script>
+
+<script id="fragment-shader2" type="x-shader/x-fragment">
+#version 300 es
+
+precision mediump float;
+
+in vec4 vColor;
+out vec4 fColor;
+
+void
+main()
+{
+    fColor = vColor;
+}
+</script>
+
+<script src="../Common/initShaders.js"></script>
+<script src="../Common/MVnew.js"></script>
+<script src="perlin.js"></script>
+<script src="F21_Prog4_SpencerMeyer.js"></script>
+
+
+</body>
+</html>
